@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaskapp
+  labels:
+    app: flaskapp
+spec:
+  type: ClusterIP
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8888
+  selector:
+    app: flaskapp

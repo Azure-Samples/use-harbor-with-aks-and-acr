@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaskapp
+  labels:
+    app: flaskapp
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flaskapp
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  minReadySeconds: 5
+  template:
+    metadata:
+      labels:
+        app: flaskapp
+    spec:
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: flaskapp
+      - maxSkew: 1
+        topologyKey: kubernetes.io/hostname
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: flaskapp
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+      - name: flaskapp
+        image: harbor/image:tag
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "32Mi"
+            cpu: "100m"
+          limits:
+            memory: "64Mi"
+            cpu: "200m"
+        ports:
+        - containerPort: 8888
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 8888
+          failureThreshold: 1
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 8888
+          failureThreshold: 1
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /
+            port: 8888
+          failureThreshold: 1
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 5
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: POD_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: SERVICE_NAME
+          value: flaskapp
+      imagePullSecrets:
+      - name: regcred

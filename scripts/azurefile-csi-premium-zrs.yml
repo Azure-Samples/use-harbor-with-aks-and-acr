@@ -1,0 +1,13 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: azurefile-csi-premium-zrs
+mountOptions:
+- mfsymlinks
+- actimeo=30
+parameters:
+  skuName: Premium_ZRS
+  enableLargeFileShares: "true"
+provisioner: file.csi.azure.com
+reclaimPolicy: Delete
+volumeBindingMode: Immediate
