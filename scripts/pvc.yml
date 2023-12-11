@@ -1,0 +1,61 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-harbor-trivy-0
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 8Gi
+  storageClassName: azurefile-csi-premium
+  volumeMode: Filesystem
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: azure-file-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile-csi
+  volumeName: azure-file-pv
+  resources:
+    requests:
+      storage: 5Gi
+
+
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  annotations:
+    helm.sh/resource-policy: keep
+    meta.helm.sh/release-name: harbor
+    meta.helm.sh/release-namespace: harbor
+    volume.beta.kubernetes.io/storage-provisioner: file.csi.azure.com
+    volume.kubernetes.io/storage-provisioner: file.csi.azure.com
+  creationTimestamp: "2023-12-01T10:47:31Z"
+  finalizers:
+  - kubernetes.io/pvc-protection
+  labels:
+    app: harbor
+    app.kubernetes.io/managed-by: Helm
+    chart: harbor
+    component: registry
+    heritage: Helm
+    release: harbor
+  name: harbor-registry
+  namespace: harbor
+  resourceVersion: "359109488"
+  uid: 1a42f2fb-8f80-45a1-8e14-1395bdabdf01
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 256Gi
+  storageClassName: azurefile-csi-premium-zrs
+  volumeMode: Filesystem
+status:
+  phase: Pending
