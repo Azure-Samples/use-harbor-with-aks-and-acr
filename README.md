@@ -27,17 +27,18 @@ This article provides a comprehensive guide on deploying [Harbor](https://goharb
     - [Harbor Instances communicating via Public IP Address](#harbor-instances-communicating-via-public-ip-address)
     - [Harbor Instances communicating via Private IP Address](#harbor-instances-communicating-via-private-ip-address)
     - [Harbor Instances communicating via Azure Private Link](#harbor-instances-communicating-via-azure-private-link)
-  - [Working with Harbor Projects](#working-with-harbor-projects)
-  - [Create a new Project](#create-a-new-project)
+  - [Working with Harbor](#working-with-harbor)
+  - [Create a New Project](#create-a-new-project)
   - [Create a New User](#create-a-new-user)
-  - [Pushing Images to Harbor](#pushing-images-to-harbor)
-  - [Pulling Images from Harbor](#pulling-images-from-harbor)
-  - [Using an Image from Harbor](#using-an-image-from-harbor)
-    - [Log in to Harbor](#log-in-to-harbor)
-    - [Create a Secret based on existing credentials](#create-a-secret-based-on-existing-credentials)
-    - [Create a Secret by providing credentials on the command line](#create-a-secret-by-providing-credentials-on-the-command-line)
-    - [Inspecting the `regcred` Secret](#inspecting-the-regcred-secret)
-    - [Create a Deployment that uses a Harbor image](#create-a-deployment-that-uses-a-harbor-image)
+  - [Working with Images in Harbor](#working-with-images-in-harbor)
+    - [Pushing Images to Harbor](#pushing-images-to-harbor)
+    - [Pulling Images from Harbor](#pulling-images-from-harbor)
+    - [Using an Image from Harbor](#using-an-image-from-harbor)
+      - [Log in to Harbor](#log-in-to-harbor)
+      - [Create a Secret based on existing credentials](#create-a-secret-based-on-existing-credentials)
+      - [Create a Secret by providing credentials on the command line](#create-a-secret-by-providing-credentials-on-the-command-line)
+      - [Inspecting the `regcred` Secret](#inspecting-the-regcred-secret)
+      - [Create a Deployment that uses a Harbor image](#create-a-deployment-that-uses-a-harbor-image)
   - [Create a Registry Endpoint in Harbor](#create-a-registry-endpoint-in-harbor)
     - [Create a Registry Endpoint to another Harbor Instance](#create-a-registry-endpoint-to-another-harbor-instance)
     - [Create a Registry Endpoint to Docker Hub](#create-a-registry-endpoint-to-docker-hub)
@@ -75,7 +76,7 @@ When installing Harbor, you will encounter five services that play different rol
 - `Database`: The Database service is responsible for storing and managing metadata and configuration of Harbor. It holds information such as users, projects, repositories, access control policies, and system settings. Harbor supports different databases like PostgreSQL and MySQL. The Database service ensures the persistence and integrity of the registry data.
 - `Trivy`: Trivy is a vulnerability scanner integrated with Harbor. It scans container images for security vulnerabilities during the image push process. Trivy runs in a separate pod and interacts with the Database and Registry services. It adds an additional layer of security by automatically scanning container images for vulnerabilities.
 
-For more information on Harbor installation, see the following resources:
+Each service operates within its own deployment, which can consist of one or multiple pods, depending on the specified deployment configuration. For more information on Harbor installation, see the following resources:
 
 - [Test Harbor with the Demo Server](https://goharbor.io/docs/2.1.0/install-config/demo-server/)
 - [Harbor Compatibility List](https://goharbor.io/docs/2.1.0/install-config/harbor-compatibility-list/)
@@ -222,6 +223,14 @@ sampleNamespace="flaskapp"
 managedCsiPremiumZrsStorageClassName="managed-csi-premium-zrs"
 azureFilePremiumZrsStorageClassName="azurefile-csi-premium-zrs"
 ```
+
+This article presents three different deployment options:
+
+- **Deploy Harbor with Managed Disks**: This is a basic installation option where all Harbor services utilize an [Azure Managed Disk](https://learn.microsoft.com/en-us/azure/virtual-machines/disks-types) as a data repository. Each service deployment consists of a single pod. This deployment is suitable for small setups.
+- **Deploy Harbor with Managed PostgreSQL and Redis**: This deployment option creates and utilizes an [Azure Database for PostgreSQL flexible server](https://learn.microsoft.com/en-us/azure/postgresql/flexible-server/overview) as the data repository for the `database` service. It also employs an [Azure Cache for Redis](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-overview), ideally configured with [zone redundancy](https://learn.microsoft.com/en-us/azure/azure-cache-for-redis/cache-how-to-zone-redundancy), as a cache for the `redis` service. This deployment is more robust than the previous option as it leverages the resiliency features provided by Azure managed services.
+- **Deploy Harbor across Availability Zones**: This deployment option ensures intra-region resiliency by spreading multiple replicas of each service deployment across availability zones in a zone-redundant AKS cluster. Additionally, services utilize Zone Redundant Storage (ZRS) for persistent volumes.
+
+Choose the deployment style that best fits your constraints and requirements in terms of reliability, configuration, performance, and cost. You can customize your own deployment configuration by selecting different values during the Helm chart deployment and by combining the approaches mentioned above.
 
 ### Deploy Harbor with Managed Disks
 
@@ -1284,7 +1293,7 @@ To enable DNS resolution across multiple virtual networks, a global [Azure Priva
 
 The use of Azure Private Link ensures secure and direct communication between Harbor instances, keeping the traffic within the Azure backbone network. This topology enhances security and performance, providing a reliable and efficient network infrastructure for the communication between Harbor instances in different AKS clusters.
 
-## Working with Harbor Projects
+## Working with Harbor
 
 In Harbor, a project represents a collection of container images. Before pushing images to Harbor, a project must be created. Role-Based Access Control (RBAC) is applied to projects, ensuring that only users with specific roles can perform certain operations.
 
@@ -1309,7 +1318,7 @@ The image below illustrates the RBAC roles in Harbor:
 
 By assigning appropriate roles to users in different projects, you can control their access to image repositories and manage their permissions effectively. For more information on Projects, see the official [Harbor documentation](https://goharbor.io/docs/2.9.0/working-with-projects/project-configuration/).
 
-## Create a new Project
+## Create a New Project
 
 Assuming that you have successfully deployed Harbor to your Azure Kubernetes Service (AKS) cluster and exposed it either inside or outside the virtual network using an ingress controller, such as the [NGINX Ingress controller](https://kubernetes.github.io/ingress-nginx/) or the [Application Gateway for Containers](https://learn.microsoft.com/en-us/azure/application-gateway/for-containers/overview), log in using the administrator credentials. Once logged in, you will see the `Projects` page.
 
@@ -1366,7 +1375,11 @@ You can proceed as follows to assign a user a role on a `Project`:
 
 Depending on the selected role, the user will be able to see or edit the repositories in the project, pull or push images, etc. On public projects all users will be able to see the list of repositories, images, image vulnerabilities, Helm charts and Helm chart versions, pull images, retag images (need push permission for destination image), download Helm charts, download Helm chart versions.
 
-## Pushing Images to Harbor
+## Working with Images in Harbor
+
+In this section, you will learn how to efficiently pull and push container images to Harbor.
+
+### Pushing Images to Harbor
 
 For simplicity, let's assume that the Harbor registry is publicly exposed at `harbor.contoso.com`. Follow these steps to publish a container image to Harbor:
 
@@ -1413,7 +1426,7 @@ These steps will enable you to easily access and use the push command for the im
 
 ![Push Command](./images/push-image.png)
 
-## Pulling Images from Harbor
+### Pulling Images from Harbor
 
 Follow this steps to pull an image from Harbor:
 
@@ -1442,11 +1455,11 @@ If you don't know the exact tag of the container image to pull, you can proceed 
 
 ![Copy Pull Command](./images/pull-image.png)
 
-## Using an Image from Harbor
+### Using an Image from Harbor
 
 In order to deploy a workload to your Azure Kubernetes Service (AKS) cluster that uses a container image from a private project in Harbor, you need to follow these steps. If you are not familiar with pulling images from a private registry, you can refer to the [Kubernetes documentation](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) for more information.
 
-### Log in to Harbor
+#### Log in to Harbor
 
 On your laptop, you must authenticate with Harbor in order to pull an image from a private library. Use the `docker` tool to log in to Harbor. For more information, see [Docker ID accounts](https://docs.docker.com/docker-id/#log-in). You need to sign in using the credentials of a Harbor user who has been assigned a role with the `Pull Image` permission for the specific library containing the image.
 
@@ -1475,7 +1488,7 @@ The output contains a section similar to this:
 
 `Note:` If you use a Docker credentials store, you won't see that `auth` entry but a `credsStore` entry with the name of the store as value. In that case, you can create a secret directly. See [Create a Secret by providing credentials on the command line](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#create-a-secret-by-providing-credentials-on-the-command-line).
 
-### Create a Secret based on existing credentials
+#### Create a Secret based on existing credentials
 
 A Kubernetes cluster uses the Secret of `kubernetes.io/dockerconfigjson` type to authenticate with a private container registry to pull a container image. If you already ran `docker login`, you can copy that credential into Kubernetes:
 
@@ -1506,7 +1519,7 @@ type: kubernetes.io/dockerconfigjson
 
 If you get the error message `error: no objects passed to create`, it may mean the base64 encoded string is invalid. If you get an error message like `Secret "myregistrykey" is invalid: data[.dockerconfigjson]: invalid value ...`, it means the base64 encoded string in the data was successfully decoded, but could not be parsed as a `.docker/config.json` file.
 
-### Create a Secret by providing credentials on the command line
+#### Create a Secret by providing credentials on the command line
 
 Create this Secret, naming it `regcred`:
 
@@ -1531,7 +1544,7 @@ You have successfully set your Harbor credentials in the cluster as a secret cal
 
 `Note:` Typing secrets on the command line may store them in your shell history unprotected, and those secrets might also be visible to other users on your PC during the time that `kubectl` is running.
 
-### Inspecting the `regcred` Secret
+#### Inspecting the `regcred` Secret
 
 To understand the contents of the `regcred` secret you created, start by viewing the Secret in YAML format:
 
@@ -1581,7 +1594,7 @@ paolos:xxxxxxxxxxx
 
 Notice that the Secret data contains the authorization token similar to your local `~/.docker/config.json` file. You have successfully set your Harbor credentials as a Secret called `regcred` in the cluster.
 
-### Create a Deployment that uses a Harbor image
+#### Create a Deployment that uses a Harbor image
 
 Below you can see the YAML manifest of a Kubernetes deployment that pulls a container image from a private library of an Harbor registry usig the `regcred` secret.
 
@@ -2245,19 +2258,12 @@ GitOps and DevOps are two popular methodologies for managing software developmen
 - `GitOps` is an approach where the desired state of infrastructure and applications is declared and version-controlled in a Git repository. Tools such as [Argo CD](https://argo-cd.readthedocs.io/en/stable/) and [Flux](https://fluxcd.io/) continuously monitor the repository and automatically synchronize the actual state of the system with the desired state defined in the repository. This ensures a declarative and auditable approach to software delivery and deployment.
 - `DevOps`, on the other hand, is a set of practices that combines software development and IT operations. It emphasizes collaboration, automation, and continuous delivery of software changes. DevOps methodologies promote shorter development cycles, faster feedback loops, and improved collaboration between development teams and operations teams.
 
-Harbor seamlessly integrates with Azure DevOps or GitOps technologies like Argo CD and Flux, enabling smooth workflows for managing container images.
-
 ### Harbor Integration in CI/CD Workflows
 
-Harbor seamlessly integrates with Azure DevOps or GitOps technologies like Argo CD and Flux, enabling smooth workflows for managing container images.
-
-By utilizing Harbor as a container registry, you can store and version your container images in a secure and centralized location. This ensures consistent access to the required images across different stages of your CI/CD pipeline.
-
+Harbor seamlessly integrates with Azure DevOps or GitOps technologies like [Argo CD](https://argo-cd.readthedocs.io/en/stable/) and [Flux](https://fluxcd.io/) , enabling smooth workflows for managing container images. By utilizing Harbor as a container registry, you can store and version your container images in a secure and centralized location. This ensures consistent access to the required images across different stages of your CI/CD pipeline. 
 With Azure DevOps, you can easily configure your build pipelines to push the container images to Harbor. By making Harbor the authoritative source for your container images, you can ensure that all stages of your pipeline use the same trusted images.
 
-Similarly, when utilizing GitOps technologies like Argo CD or Flux, you can configure those tools to pull the container images from Harbor for deployment. This ensures that the deployed environments match the desired state defined in your Git repository.
-
-By leveraging Harbor's capabilities as a single source of truth for container images, you can enhance the reliability, traceability, and security of your CI/CD workflows, regardless of whether you are using Azure DevOps or GitOps methodologies.
+Similarly, when utilizing GitOps technologies like Argo CD or Flux, you can configure those tools to pull the container images from Harbor for deployment. This ensures that the deployed environments match the desired state defined in your Git repository. By leveraging Harbor's capabilities as a single source of truth for container images, you can enhance the reliability, traceability, and security of your CI/CD workflows, regardless of whether you are using Azure DevOps or GitOps methodologies.
 
 ### Using Harbor with Argo CD
 
@@ -2271,7 +2277,7 @@ In this scenario, we establish a pull-based DevOps pipeline to deploy an applica
 2. The code is then committed to a Git repository hosted on GitHub or any other distributed version control system.
 3. The [GitHub Actions](https://docs.github.com/en/actions) CI pipeline is configured to build a container image from the application code and push it to a Harbor registry used as a single source of truth.
 4. As part of the continuous integration process, [GitHub Actions](https://docs.github.com/en/actions) updates a Kubernetes YAML manifest or Helm chart with the latest version of the container image, based on the image version in Harbor.
-5. The [Argo CD](https://argo-cd.readthedocs.io/en/stable/) operator provides seamless monitoring of the Git repository for any configuration changes. It automatically detects any changes and efficiently pulls the updated YAML manifests or Helm charts. As a result, Flux effortlessly deploys the new application release onto the AKS cluster, ensuring smooth and timely updates.
+5. The [Argo CD](https://argo-cd.readthedocs.io/en/stable/) operator provides seamless monitoring of the Git repository for any configuration changes. It automatically detects any changes and efficiently pulls the updated YAML manifests or Helm charts. As a result, Argo CD effortlessly deploys the new application release onto the AKS cluster, ensuring smooth and timely updates.
 6. [Argo CD](https://argo-cd.readthedocs.io/en/stable/), acting as the GitOps operator, leverages the YAML manifest or Helm charts to deploy the web application to an AKS cluster.
 7. During the deployment process, the container images are directly pulled from the primary Harbor instance. Alternatively, the container images can be pulled from a Harbor replica, or an [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/services/container-registry/).
 8. The main Harbor instance also pushes container images to an [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/services/container-registry/) for wider distribution and consumption.
