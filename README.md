@@ -63,6 +63,7 @@ This article provides a comprehensive guide on deploying [Harbor](https://goharb
     - [Using Harbor with Azure DevOps](#using-harbor-with-azure-devops)
   - [Using Harbor in multi-cloud scenario](#using-harbor-in-multi-cloud-scenario)
   - [Conclusion](#conclusion)
+  - [Acknowledgements](#acknowledgements)
 
 ## Harbor Services
 
@@ -2338,3 +2339,7 @@ When deploying applications on cloud platforms like [Azure Kubernetes Service (A
 ## Conclusion
 
 With Harbor as their container registry, customers enjoy the benefits of consistent, secure, and streamlined container image management. The advantages of using Harbor extend beyond a single cloud provider, providing customers with the flexibility to leverage multiple cloud environments without sacrificing operational efficiency or security. By adopting Harbor, customers can confidently navigate their multi-cloud Kubernetes infrastructure while reaping the rewards of simplified operations and enhanced security. To learn more about Harbor and its capabilities, visit the [Harbor website](https://goharbor.io/) and explore the vast resources available within the CNCF community.
+
+## Acknowledgements
+
+I would like to express my gratitude to [Michael C. Bazarewsky](https://github.com/MikeBazMSFT) for his invaluable review of this article and for providing valuable suggestions. Your feedback has greatly enhanced the quality and clarity of the content. Thank you for your time and expertise!
