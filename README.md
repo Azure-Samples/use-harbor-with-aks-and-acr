@@ -14,6 +14,7 @@ This article provides a comprehensive guide on deploying [Harbor](https://goharb
 
 - [Streamlining Container Image Management in Azure and Multi-Cloud Environments with Harbor](#streamlining-container-image-management-in-azure-and-multi-cloud-environments-with-harbor)
   - [Table of Contents](#table-of-contents)
+  - [Repository Structure](#repository-structure)
   - [Harbor Services](#harbor-services)
   - [Deploying Harbor on AKS with Helm](#deploying-harbor-on-aks-with-helm)
     - [Deploy Harbor with Managed Disks](#deploy-harbor-with-managed-disks)
@@ -64,6 +65,94 @@ This article provides a comprehensive guide on deploying [Harbor](https://goharb
   - [Using Harbor in multi-cloud scenario](#using-harbor-in-multi-cloud-scenario)
   - [Conclusion](#conclusion)
   - [Acknowledgements](#acknowledgements)
+
+## Repository Structure
+
+The following table contains the repository structure.
+
+```text
+└── use-harbor-with-aks-and-acr-azure-sample
+    └── CHANGELOG.md                                     - Change log
+    └── CONTRIBUTING.md                                  - Contributing rules
+    └── images                                           - Images
+        └── aks-architecture.png
+        └── argo-cd.png
+        └── azure-devops.png
+        └── deployment-with-azure-files.png
+        └── deployment-with-managed-disks.png
+        └── deployment-with-managed-sql-and-redis.png
+        └── destination.png
+        └── flux-cd.png
+        └── hover-the-mouse.png
+        └── members-after.png
+        └── members-before.png
+        └── multi-attach-error.png
+        └── multi-cloud.png
+        └── new-acr-endpoint.png
+        └── new-docker-hub-endpoint.png
+        └── new-harbor-endpoint.png
+        └── new-project-member.png
+        └── new-project.png
+        └── new-user.png
+        └── not-scanned.png
+        └── private-link-service.png
+        └── private-load-balancer.png
+        └── projects-after-project-creation.png
+        └── projects-before-project-creation.png
+        └── providers.png
+        └── public-load-balancer.png
+        └── pull-flaskapp-image-from-another-harbor.png
+        └── pull-image.png
+        └── pull-images-from-acr.png
+        └── pull-ubuntu-latest-replication-rule.png
+        └── push-image-to-acr.png
+        └── push-image.png
+        └── push-or-pull.png
+        └── rbac.png
+        └── registries.png
+        └── replications.png
+        └── set-user-as-admin.png
+        └── source-resource-filter.png
+        └── token-scope-map-concepts.png
+        └── trigger-mode.png
+        └── vulnerabilities.png
+    └── LICENSE.md                                       - License
+    └── README.md                                        - Readme
+    └── scripts                                          - Scripts and YAML manifests
+        └── 00-variables.sh
+        └── 01-create-nginx-ingress-controller.sh
+        └── 02-install-cert-manager.sh
+        └── 03-deploy-harbor-with-managed-disks.sh
+        └── 04-deploy-harbor-with-managed-services.sh
+        └── 05-deploy-harbor-via-helm-across-azs.sh
+        └── 06-configure-dns-record.sh
+        └── 07-build-docker-image.sh
+        └── 08-run-docker-container.sh
+        └── 09-push-docker-image.sh
+        └── 10-deploy-app.sh
+        └── 11-configure-dns.sh
+        └── 12-create-acr.sh
+        └── 13-get-acr-token.sh
+        └── 14-add-repository-to-scope-map.sh
+        └── 15-import-image-from-harbor-into-acr.sh
+        └── app                                          - Sample Python application
+            └── Dockerfile
+            └── requirements.txt
+            └── src
+                └── app.py
+                └── templates
+                    └── error.html
+                    └── index.html
+        └── azurefile-csi-premium-zrs.yml
+        └── cluster-issuer.yml
+        └── deployment.yml
+        └── ingress.yml
+        └── managed-csi-premium-zrs.yml
+        └── pvc.yml
+        └── service.yml
+    └── visio
+        └── architecture.vsdx                            - Visio file with diagrams
+```
 
 ## Harbor Services
 
