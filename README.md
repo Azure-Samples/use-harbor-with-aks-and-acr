@@ -156,7 +156,7 @@ The following table contains the repository structure.
 
 ## Harbor Services
 
-When installing Harbor, you will encounter five services that play different roles in the registry:
+When installing Harbor, you will encounter seven services that play different roles in the registry:
 
 - `Core`: The Core service is the main component of Harbor. It manages the overall functionality and operation of the Harbor registry. This service runs in its own pod.
 - `Portal`: The Portal service provides the user interface for interacting with Harbor. It allows users to browse, search, and manage container images and projects. The Portal service runs in its own pod.
