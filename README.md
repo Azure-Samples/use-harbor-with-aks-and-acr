@@ -1831,6 +1831,7 @@ To replicate image repositories from one instance of Harbor to another Harbor or
    - [Azure Container Registry (ACR)](https://azure.microsoft.com/en-us/services/container-registry/)
    - [Ali Cloud Container Registry](https://intl.aliyun.com/product/container-registry)
    - [Google Container Registry](https://cloud.google.com/container-registry)
+   - [Google Artifact Registry](https://cloud.google.com/artifact-registry/)
    - [Huawei SWR](https://www.huaweicloud.com/en-us/product/swr.html)
    - [Artifact Hub](https://artifacthub.io/) (Support added in v2.0.4)
    - [Gitlab](https://gitlab.com/)
