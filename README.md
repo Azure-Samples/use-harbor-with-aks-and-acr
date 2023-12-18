@@ -1,4 +1,4 @@
-# Streamlining Container Image Management in Azure and Multi-Cloud Environments with Harbor
+# Use Harbor in Azure and Multi-Cloud Environments
 
 In today's rapidly evolving cloud landscape, managing container images in a single-cloud scenario across multiple regions or across multiple cloud providers can be a complex and challenging task. However, with the introduction of [Harbor](https://goharbor.io/), an open-source, cloud-native registry, customers can now enjoy a unified and efficient approach to container image management across separate cloud environments such as Azure, AWS, and GCP.
 
@@ -12,7 +12,7 @@ This article provides a comprehensive guide on deploying [Harbor](https://goharb
 
 ## Table of Contents
 
-- [Streamlining Container Image Management in Azure and Multi-Cloud Environments with Harbor](#streamlining-container-image-management-in-azure-and-multi-cloud-environments-with-harbor)
+- [Use Harbor in Azure and Multi-Cloud Environments](#use-harbor-in-azure-and-multi-cloud-environments)
   - [Table of Contents](#table-of-contents)
   - [Repository Structure](#repository-structure)
   - [Harbor Services](#harbor-services)
