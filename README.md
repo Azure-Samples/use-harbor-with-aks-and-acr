@@ -2432,4 +2432,4 @@ With Harbor as their container registry, customers enjoy the benefits of consist
 
 ## Acknowledgements
 
-I would like to express my gratitude to [Michael C. Bazarewsky](https://github.com/MikeBazMSFT) for his invaluable review of this article and for providing valuable suggestions. Your feedback has greatly enhanced the quality and clarity of the content. Thank you for your time and expertise!
+I would like to express my gratitude to [Michael C. Bazarewsky](https://github.com/MikeBazMSFT) and [Shankar Ramachandran](https://github.com/shankar-r10n) for reviewing the article and for providing valuable suggestions. Thank you for your time and expertise.
