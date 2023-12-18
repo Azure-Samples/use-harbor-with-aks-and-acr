@@ -2015,7 +2015,7 @@ Once you created a token to let Harbor access a subset of ACR repositories, you 
 
 ## Create a Replication Rule
 
-Once you created a registry endpoint, you can create one or more replication rulee as follows:
+Once you created a registry endpoint, you can create one or more replication rule as follows:
 
 1. Log in to the Harbor interface with an account that has Harbor system administrator privileges.
 2. Expand the `Administration` section and select `Replications`.
@@ -2198,7 +2198,7 @@ You can proceed as follows to create a replication rule to push a container imag
       - `Event Based`: Replicate resources immediately when a new resource is pushed or retagged. If you select the `Delete remote resources when locally deleted` option, artifacts deleted locally will also be deleted from the replication destination.
 
 11. Optionally, set the maximum network bandwidth for each replication task using the `Bandwidth` option. Please take into account the number of concurrent executions, keeping in mind that the default value is 10 for each job-service pod. The bandwidth unit is kilobytes per second (-1 stands for unlimited bandwidth). Llimiting the bandwidth too much and stopping the replication job might result in a long delay before the job worker can run a new job.
-12. Optionally, select the `Override` checkbox to force replicated resources to replace resources at the destination with the same name.![Alt text](image.png)
+12. Optionally, select the `Override` checkbox to force replicated resources to replace resources at the destination with the same name.
 13. Optionally, select the `Copy by chunk` checkbox to enable copying the artifact blobs by chunks. This feature is currently supported only when the source and destination registries are both Harbor. For other registry types, you can enable it manually by calling the Harbor API. The official support for copy by chunk between Harbor and other registry types has not been verified. The default chunk size is 10MB, but you can override it by setting the `REPLICATION_CHUNK_SIZE` environment variable in the jobservice. For example, to set a chunk size of 10MB, you would set `REPLICATION_CHUNK_SIZE=10485760`.
 14. Click `Save` to create the replication rule.
 
